@@ -16,6 +16,10 @@ use Glorpen\QueueBundle\Queue\Task;
 
 use Glorpen\QueueBundle\BackendInterface;
 
+/**
+ * Main queue service.
+ * @author Arkadiusz Dzięgiel
+ */
 class Queue {
 	
 	protected $backend;

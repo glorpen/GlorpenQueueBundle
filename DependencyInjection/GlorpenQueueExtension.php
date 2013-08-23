@@ -9,6 +9,9 @@ use Symfony\Component\Config\FileLocator;
 use Symfony\Component\HttpKernel\DependencyInjection\Extension;
 use Symfony\Component\DependencyInjection\Loader;
 
+/**
+ * @author Arkadiusz Dzięgiel
+ */
 class GlorpenQueueExtension extends Extension
 {
     /**
@@ -21,8 +24,6 @@ class GlorpenQueueExtension extends Extension
         
         $configuration = new Configuration();
         $config = $this->processConfiguration($configuration, $configs);
-        
-        //$queue = $container->getDefinition('glorpen.queue');
         
         $backend = 'glorpen.queue.backend.'.$config['backend'];
         if(!$container->hasDefinition($backend)){

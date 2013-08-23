@@ -5,6 +5,7 @@ namespace Glorpen\QueueBundle\Queue;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
+ * Base class for task objects.
  * @author Arkadiusz Dzięgiel
  */
 abstract class Task {

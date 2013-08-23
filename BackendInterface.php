@@ -2,6 +2,10 @@
 
 namespace Glorpen\QueueBundle;
 
+/**
+ * An interface for custom backend implementations.
+ * @author Arkadiusz Dzięgiel
+ */
 interface BackendInterface {
 	
 	const STATUS_OK = 'ok';

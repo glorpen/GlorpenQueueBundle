@@ -18,6 +18,10 @@ use Symfony\Component\Console\Output\OutputInterface;
 
 use Symfony\Component\Console\Command\Command;
 
+/**
+ * Executes tasks from queue.
+ * @author Arkadiusz Dzięgiel
+ */
 class RunCommand extends ContainerAwareCommand {
 	
 	private $output;

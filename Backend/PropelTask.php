@@ -5,6 +5,9 @@ use Glorpen\QueueBundle\Queue\Task as BaseTask;
 
 use Glorpen\QueueBundle\Model\Propel\Task;
 
+/**
+ * @author Arkadiusz Dzięgiel
+ */
 class PropelTask extends BaseTask {
 	
 	protected $task;
@@ -12,7 +15,6 @@ class PropelTask extends BaseTask {
 	public function __construct(Task $task){
 		$this->task = $task;
 	}
-	
 	
 	public function getService() {
 		return $this->task->getService();

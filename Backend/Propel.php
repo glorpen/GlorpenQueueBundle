@@ -10,6 +10,9 @@ use Glorpen\QueueBundle\Model\Propel\Task;
 
 use Glorpen\QueueBundle\BackendInterface;
 
+/**
+ * @author Arkadiusz Dzięgiel
+ */
 class Propel implements BackendInterface {
 	
 	/**

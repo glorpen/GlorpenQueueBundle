@@ -5,6 +5,10 @@ use Glorpen\QueueBundle\Queue\Task;
 
 use Symfony\Component\EventDispatcher\Event;
 
+/**
+ * Simple event with task as data.
+ * @author Arkadiusz Dzięgiel
+ */
 class TaskEvent extends Event {
 	
 	protected $task;

@@ -16,6 +16,9 @@ use Symfony\Component\Console\Output\OutputInterface;
 
 use Symfony\Component\Console\Command\Command;
 
+/**
+ * @author Arkadiusz Dzięgiel
+ */
 class RestartFailedCommand extends ContainerAwareCommand {
 	
 	protected function configure(){
