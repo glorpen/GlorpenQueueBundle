@@ -45,7 +45,7 @@ class Queue {
 	}
 	
 	public function createTask(){
-		$this->log('debug', 'Creating empty');
+		$this->log('debug', 'Creating empty task');
 		return $this->backend->createTask();
 	}
 	
