@@ -2,6 +2,10 @@
 
 namespace Glorpen\QueueBundle\Services;
 
+use Glorpen\QueueBundle\Event\TaskEvent;
+
+use Symfony\Component\EventDispatcher\EventDispatcherInterface;
+
 use Psr\Log\LoggerInterface;
 
 use Monolog\Logger;
@@ -17,11 +21,13 @@ class Queue {
 	protected $backend;
 	protected $container;
 	protected $logger;
+	protected $dispatcher;
 	
-	public function __construct(ContainerInterface $container, BackendInterface $backend, LoggerInterface $logger = null){
+	public function __construct(ContainerInterface $container, BackendInterface $backend, EventDispatcherInterface $dispatcher, LoggerInterface $logger = null){
 		$this->backend = $backend;
 		$this->container = $container;
 		$this->logger = $logger;
+		$this->dispatcher = $dispatcher;
 	}
 	
 	private function log($level, $message, array $context = array()){
@@ -44,6 +50,7 @@ class Queue {
 		$tasks = $this->backend->startPending($limit);
 		
 		foreach($tasks as $task){
+			$this->dispatcher->dispatch('glorpen.queue.task_start', new TaskEvent($task));
 			try {
 				$this->log('info', sprintf('Executing task %s', $task->getName()));
 				if($task->execute($this->container)){
@@ -54,6 +61,7 @@ class Queue {
 				$this->log('error', sprintf('Marking task %s as failed', $task->getName()), array('exception'=>$e));
 				$this->backend->markDone($task, BackendInterface::STATUS_FAILURE);
 			}
+			$this->dispatcher->dispatch('glorpen.queue.task_end', new TaskEvent($task));
 			$this->log('info', sprintf('Task %s ended after %d seconds', $task->getName(), $task->getExecutionTime()));
 		}
 	}

@@ -33,6 +33,9 @@ class PropelTask extends BaseTask {
 		return $this->task->getStartedOn();
 	}
 
+	public function getStatus(){
+		return $this->task->getStatus();
+	}
 	
 	public function getModel(){
 		return $this->task;

@@ -18,6 +18,8 @@ abstract class Task {
 	abstract public function getPriority();
 	abstract public function getStartTime();
 	
+	abstract public function getStatus();
+	
 	public function getExecutionTime(){
 		return $this->executionTime;
 	}
