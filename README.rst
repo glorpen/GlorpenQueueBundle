@@ -92,3 +92,5 @@ Other useful commands:
 
 - ``queue:restart-failed`` simply marks failed tasks as pending
 - ``queue:unlock`` unlocks crashed (eg. on OOM) tasks
+- ``queue:clean`` removes succesfull tasks
+- ``queue:stats`` shows queue current stats

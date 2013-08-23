@@ -56,6 +56,7 @@ class RunCommand extends ContainerAwareCommand {
 		$dispatcher->addListener('glorpen.queue.task_start', array($this, 'handleTaskEvent'));
 		$dispatcher->addListener('glorpen.queue.task_end', array($this, 'handleTaskEvent'));
 		
-		$queue->run($input->getOption('limit'));
+		$count = $queue->run($input->getOption('limit'));
+		$output->writeln(sprintf("Executed %d tasks", $count));
 	}
 }

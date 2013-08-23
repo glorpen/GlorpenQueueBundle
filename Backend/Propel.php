@@ -84,5 +84,26 @@ class Propel implements BackendInterface {
 		$model->setExecutionTime($task->getExecutionTime());
 		$model->save();
 	}
+	
+	public function cleanup(){
+		return TaskQuery::create()
+		->filterByStatus(TaskPeer::STATUS_OK)
+		->delete();
+	}
+	
+	public function getStats(){
+		$stats = TaskQuery::create()
+		->groupByStatus()
+		->withColumn('COUNT(*)', 'cnt')
+		->select(array('status', 'cnt'))
+		->find();
+		
+		$enums = TaskPeer::getValueSet(TaskPeer::STATUS);
+		$ret = array_fill_keys($enums, 0);
+		foreach($stats as $stat){
+			$ret[$enums[$stat['status']]] = (int)($stat['cnt']);
+		}
+		return $ret;
+	}
 
 }

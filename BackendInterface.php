@@ -49,4 +49,16 @@ interface BackendInterface {
 	 * @return integer number of restarted tasks
 	 */
 	public function restartFailed();
+	
+	/**
+	 * Removes successfull tasks.
+	 * @return integer number of removed tasks
+	 */
+	public function cleanup();
+	
+	/**
+	 * Returns queue stats.
+	 * @return array
+	 */
+	public function getStats();
 }

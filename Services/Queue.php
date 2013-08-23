@@ -57,10 +57,9 @@ class Queue {
 			$this->dispatcher->dispatch('glorpen.queue.task_start', new TaskEvent($task));
 			try {
 				$this->log('info', sprintf('Executing task %s', $task->getName()));
-				if($task->execute($this->container)){
-					$this->log('info', sprintf('Marking task %s as ok', $task->getName()));
-					$this->backend->markDone($task, BackendInterface::STATUS_OK);
-				}
+				$task->execute($this->container);
+				$this->log('info', sprintf('Marking task %s as ok', $task->getName()));
+				$this->backend->markDone($task, BackendInterface::STATUS_OK);
 			} catch(\Exception $e){
 				$this->log('error', sprintf('Marking task %s as failed', $task->getName()), array('exception'=>$e));
 				$this->backend->markDone($task, BackendInterface::STATUS_FAILURE);
@@ -68,6 +67,8 @@ class Queue {
 			$this->dispatcher->dispatch('glorpen.queue.task_end', new TaskEvent($task));
 			$this->log('info', sprintf('Task %s ended after %d seconds', $task->getName(), $task->getExecutionTime()));
 		}
+		
+		return count($tasks);
 	}
 	
 	public function unlockCrashed($timeDiff){
@@ -82,5 +83,16 @@ class Queue {
 		$count = $this->backend->restartFailed();
 		$this->log('info', sprintf('%d failed tasks marked as pending', $count));
 		return $count;
+	}
+	
+	public function cleanup(){
+		$this->log('info', 'Removing successfull tasks');
+		$count = $this->backend->cleanup();
+		$this->log('info', sprintf('%d tasks removed', $count));
+		return $count;
+	}
+	
+	public function getStats(){
+		return $this->backend->getStats();
 	}
 }

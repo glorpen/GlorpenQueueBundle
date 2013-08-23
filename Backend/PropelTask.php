@@ -20,7 +20,7 @@ class PropelTask extends BaseTask {
 		return $this->task->getService();
 	}
 	public function getArgs() {
-		return $this->getArgs();
+		return $this->task->getArgs();
 	}
 	public function getMethod() {
 		return $this->task->getMethod();
