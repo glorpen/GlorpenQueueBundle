@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<database name="default" namespace="Glorpen\QueueBundle\Model\Propel" defaultIdMethod="native"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:noNamespaceSchemaLocation="http://xsd.propelorm.org/1.6/database.xsd" >
+
+    <table name="glorpen_task" phpName="Task">
+        <column name="id" type="INTEGER" required="true" primaryKey="true" autoIncrement="true" />
+        
+        <column name="status" type="ENUM" required="true" valueSet="pending,locked,ok,failed" />
+        <column name="execute_on" type="TIMESTAMP" description="Execution date" required="true" />
+        <column name="priority" type="INTEGER" required="true" defaultValue="0" />
+        <column name="queue_started_on" type="TIMESTAMP" description="Queue execution start date" required="false" />
+        
+        <column name="service" type="VARCHAR" size="255" required="true" />
+        <column name="args" type="OBJECT" required="true" />
+        <column name="method" type="VARCHAR" size="255" required="true" />
+        
+        <column name="execution_time" type="INTEGER" />
+    </table>
+    
+</database>

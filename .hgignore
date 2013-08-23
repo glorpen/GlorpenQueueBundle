@@ -4,6 +4,5 @@ syntax: regexp
 ^\.buildpath$
 ^composer\.(lock|phar)$
 ^vendor$
-^Tests/Resources/out/generated-images/sprites$
-^Tests/Resources/out/generated-images/vendor-something-.*$
-^Tests/cache$
+^Model/Propel/map$
+^Model/Propel/om$
