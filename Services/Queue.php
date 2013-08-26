@@ -6,10 +6,6 @@ use Glorpen\QueueBundle\Event\TaskEvent;
 
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
-use Psr\Log\LoggerInterface;
-
-use Monolog\Logger;
-
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 use Glorpen\QueueBundle\Queue\Task;
@@ -27,7 +23,7 @@ class Queue {
 	protected $logger;
 	protected $dispatcher;
 	
-	public function __construct(ContainerInterface $container, BackendInterface $backend, EventDispatcherInterface $dispatcher, LoggerInterface $logger = null){
+	public function __construct(ContainerInterface $container, BackendInterface $backend, EventDispatcherInterface $dispatcher, /*Psr\Log\LoggerInterface*/ $logger = null){
 		$this->backend = $backend;
 		$this->container = $container;
 		$this->logger = $logger;
@@ -35,8 +31,13 @@ class Queue {
 	}
 	
 	private function log($level, $message, array $context = array()){
-		if($this->logger)
-		$this->logger->{$level}($message, $context);
+		if($this->logger){
+			if($this->logger instanceof \Psr\Log\LoggerInterface){
+				$this->logger->{$level}($message, $context);
+			} else if($this->logger instanceof \Monolog\Logger){
+				$this->logger->{'add'.ucfirst($level)}($message, $context);
+			}
+		}
 	}
 	
 	public function addTask($taskObject){
