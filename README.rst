@@ -2,7 +2,7 @@
 GlorpenQueueBundle
 ------------------
 
-Bundle for offloading work to server side. Can add service tasks to queue for later execution.
+Bundle for offloading work to server side. Can add service tasks/jobs to queue for later execution.
 
 Queue runs can safely overlap since tasks are locked upon acquiring by runner.
 
@@ -70,18 +70,14 @@ To add new task:
 
    <?php
    $queue = $container->get("glorpen.queue");
-   $task = $queue->createTask();
-   $task->setService('test');
-   //$task->setArgs(array(3, false, array(), ...));
-   $task->setMethod('method');
-   $queue->addTask($task);
+   $queue->create('my.tasks_container', 'myMethod', array("arg1", 2));
 
 Then to execute use ``app/console queue:run``:
 
 .. sourcecode::
 
    Starting task test:method
-   Task test:method ended after 0 seconds with status "failed"
+   Task 1:test:method ended after 0 seconds with status "failed"
 
 Remember that:
 
@@ -91,6 +87,41 @@ Remember that:
 Other useful commands:
 
 - ``queue:restart-failed`` simply marks failed tasks as pending
-- ``queue:unlock`` unlocks crashed (eg. on OOM) tasks
-- ``queue:clean`` removes succesfull tasks
-- ``queue:stats`` shows queue current stats
+- ``queue:update`` marks crashed (eg. on OOM) tasks as failed and removes succesfull tasks
+
+Named tasks
+-----------
+
+To add new named task:
+
+.. sourcecode:: php
+
+   <?php
+   $queue = $container->get("glorpen.queue");
+   $queue->create('my.tasks_container', 'myMethod', array("arg1", 2), 'now', 'my_named_task');
+
+Then you can retrieve it with:
+
+.. sourcecode:: php
+
+   <?php
+   $queue = $container->get("glorpen.queue");
+   $task = $queue->getTask('my_named_task');
+   echo $task->getStatus();
+   echo $task->getProgress();
+
+When creating named task:
+
+- completed or not started task with same name will be removed
+- if old task is currently running an exception will be thrown
+
+Metadata
+--------
+
+Inside executing task you can set its *current progress*:
+
+.. sourcecode:: php
+
+   <?php
+   $queue = $container->get("glorpen.queue");
+   $queue->setCurrentTaskProgress(50);
