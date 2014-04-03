@@ -56,8 +56,17 @@ interface BackendInterface {
 	 */
 	public function cleanup();
 	
+	/**
+	 * Sets task progress.
+	 * @param object $task
+	 * @param float $progress
+	 */
 	public function setProgress($task, $progress);
 	
+	/**
+	 * Returns task with given id or null if not found
+	 * @param var $id
+	 */
 	public function findTask($id);
 	
 }
