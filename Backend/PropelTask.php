@@ -41,11 +41,11 @@ class PropelTask extends BaseTask {
 	}
 	
 	public function getStartTime(){
-	    return $this->getStartedAt();
+	    return $this->task->getStartedAt();
 	}
 	
-	public function getProgress(){
-		return $this->getProgress();
+	public function getModelProgress(){
+		return $this->task->getProgress();
 	}
 	
 }

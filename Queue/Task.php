@@ -20,7 +20,10 @@ abstract class Task {
 	abstract public function getStatus();
 	abstract public function getId();
 	
-	abstract public function getProgress();
+	abstract protected function getModelProgress();
+	public function getProgress(){
+	    return (float)$this->getModelProgress();
+	}
 	abstract public function getStartTime();
 	
 	public function getExecutionTime(){
@@ -30,10 +33,8 @@ abstract class Task {
 	public function execute(ContainerInterface $container){
 		$start = microtime(true);
 		$exception = null;
-		$args = $this->getArgs();
-		$args = array_unshift($args, $this);
 		try {
-			call_user_func_array(array($container->get($this->getService()), $this->getMethod()), $args);
+			call_user_func_array(array($container->get($this->getService()), $this->getMethod()), $this->getArgs());
 		} catch (\Exception $e){
 			$exception = $e;
 		};

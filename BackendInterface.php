@@ -58,4 +58,6 @@ interface BackendInterface {
 	
 	public function setProgress($task, $progress);
 	
+	public function findTask($id);
+	
 }

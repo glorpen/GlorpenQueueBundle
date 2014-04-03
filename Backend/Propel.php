@@ -105,16 +105,18 @@ class Propel implements BackendInterface {
 	}
 	
 	public function setProgress($task, $progress){
-	    $task->setProgress($progress);
-	    $task->save();
+	    $model = $task->getModel();
+	    $model->setProgress($progress);
+	    $model->save();
 	}
 	
 	public function findTask($id){
-	    return $this->getQuery()
+	    $m = $this->getQuery()
 	    ->filterByPrimaryKey($id)
-	    ->_or()
-	    ->filterByName($id)
+	    ->orWhere("Task.Name = ?", $id)
 	    ->findOne();
+	    
+	    if($m) return new PropelTask($m);
 	}
 	
 }
