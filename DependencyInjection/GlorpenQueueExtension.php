@@ -26,7 +26,7 @@ class GlorpenQueueExtension extends Extension
         $config = $this->processConfiguration($configuration, $configs);
         
         $backend = 'glorpen.queue.backend.'.$config['backend'];
-        if(!$container->hasDefinition($backend)){
+        if(!$container->has($backend)){
         	throw new InvalidConfigurationException(sprintf('Backend %s was not found', $backend));
         }
         $container->setAlias('glorpen.queue.backend', $backend);
