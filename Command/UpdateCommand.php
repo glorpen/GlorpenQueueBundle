@@ -19,20 +19,23 @@ use Symfony\Component\Console\Command\Command;
 /**
  * @author Arkadiusz Dzięgiel
  */
-class UnlockCommand extends ContainerAwareCommand {
+class UpdateCommand extends ContainerAwareCommand {
 	
 	protected function configure(){
 		$this
-		->setName('queue:unlock')
-		->setDescription('Unlocks crashed tasks in queue')
-		->addOption('timediff','t', InputArgument::OPTIONAL, 'How old tasks should be considered', '1d 12h')
+		->setName('queue:update')
+		->setDescription('Updates task status, removes old')
 		;
 	}
 	
 	protected function execute(InputInterface $input, OutputInterface $output){
 		$queue = $this->getContainer()->get('glorpen.queue');
 		
-		$count = $queue->unlockCrashed(\DateInterval::createFromDateString($input->getOption('timediff')));
-		$output->writeln(sprintf('Unlocked %d tasks', $count));
+		$count = $queue->cleanup();
+		$output->writeln(sprintf('Removed %d tasks', $count));
+		
+		$count = $queue->checkRunning();
+		$output->writeln(sprintf('Marked %d tasks as crashed', $count));
+		
 	}
 }

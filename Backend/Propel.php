@@ -2,12 +2,6 @@
 
 namespace Glorpen\QueueBundle\Backend;
 
-use Glorpen\QueueBundle\Model\Propel\TaskPeer;
-
-use Glorpen\QueueBundle\Model\Propel\TaskQuery;
-
-use Glorpen\QueueBundle\Model\Propel\Task;
-
 use Glorpen\QueueBundle\BackendInterface;
 
 /**
@@ -15,59 +9,72 @@ use Glorpen\QueueBundle\BackendInterface;
  */
 class Propel implements BackendInterface {
 	
+    protected $omClass;
+    
+    public function __construct($omClass = 'Glorpen\QueueBundle\Model\Propel\Task'){
+        $this->omClass = $omClass;
+    }
+    
+    protected function getQuery(){
+        $cls = $this->omClass.'Query';
+        return $cls::create();
+    }
+    
 	/**
 	 * @param Task $task
 	 */
-	public function add($task) {
-		$task->save();
-	}
-	
-	public function createTask(){
-		$t = new Task();
-		$t->setArgs(array());
-		$t->setExecuteOn('now');
+	public function create($service, $method, array $args, $executeOn = 'now', $name = null) {
+		
+	    if($name){
+	        $this->getQuery()->filterByName($name)->delete();
+	    }
+	    
+	    $t = new $this->omClass;
+		$t->setArgs($args);
+		$t->setService($service);
+		$t->setMethod($method);
+		$t->setExecuteOn($executeOn);
 		$t->setStatus(self::STATUS_PENDING);
+		$t->setName($name);
+		$t->save();
+		
 		return $t;
 	}
 	
-	public function unlockCrashed(\DateInterval $timeDiff){
+	public function getLocked(){
+		$ret = array();
+		$ts = $this->getQuery()->filterByStatus(self::STATUS_LOCKED)->find();
 		
-		$timeLimit = new \DateTime();
-		$timeLimit->sub($timeDiff);
-		
-		return TaskQuery::create()
-		->filterByQueueStartedOn($timeLimit, TaskQuery::LESS_THAN)
-		->filterByStatus(TaskPeer::STATUS_LOCKED)
-		->update(array(
-				'Status' => TaskPeer::STATUS_PENDING,
-				'QueueStartedOn' => null
-		));
+		foreach($ts as $t){
+		    $ret[] = new PropelTask($t);
+		}
+		return $ret;
 	}
 	
 	public function restartFailed(){
-		return TaskQuery::create()
-		->filterByStatus(TaskPeer::STATUS_FAILED)
-		->update(array('Status'=>TaskPeer::STATUS_PENDING));
+		return $this->getQuery()
+		->filterByStatus(self::STATUS_FAILURE)
+		->update(array('Status'=>self::STATUS_PENDING));
 	}
 	
 	public function startPending($limit) {
-		
 		$con = \Propel::getConnection();
 		$con->beginTransaction();
 		
 		$now = new \DateTime();
-		$tasks = TaskQuery::create()
-		->filterByExecuteOn($now, TaskQuery::LESS_EQUAL)
-		->filterByStatus(TaskPeer::STATUS_PENDING)
-		->orderByPriority(TaskQuery::ASC)
-		->orderByExecuteOn(TaskQuery::ASC)
+		$tasks = $this->getQuery()
+		->filterByExecuteOn($now, \Criteria::LESS_EQUAL)
+		->filterByStatus(self::STATUS_PENDING)
+		->orderByPriority(\Criteria::ASC)
+		->orderByExecuteOn(\Criteria::ASC)
 		->limit($limit)
 		->find($con);
 		
 		$ret = array();
 		foreach($tasks as $task){
 			$task->setStatus(self::STATUS_LOCKED);
-			$task->setQueueStartedOn('now');
+			$task->setStartedOn('now');
+			$task->setPid(posix_getpid());
 			$task->save($con);
 			$ret[] = new PropelTask($task);
 		}
@@ -85,25 +92,29 @@ class Propel implements BackendInterface {
 		$model->save();
 	}
 	
+	public function markStarted($task){
+	    $model = $task->getModel();
+	    $model->setStartedOn('now');
+	    $model->save();
+	}
+	
 	public function cleanup(){
-		return TaskQuery::create()
-		->filterByStatus(TaskPeer::STATUS_OK)
+		return $this->getQuery()
+		->filterByStatus(self::STATUS_OK)
 		->delete();
 	}
 	
-	public function getStats(){
-		$stats = TaskQuery::create()
-		->groupByStatus()
-		->withColumn('COUNT(*)', 'cnt')
-		->select(array('status', 'cnt'))
-		->find();
-		
-		$enums = TaskPeer::getValueSet(TaskPeer::STATUS);
-		$ret = array_fill_keys($enums, 0);
-		foreach($stats as $stat){
-			$ret[$enums[$stat['status']]] = (int)($stat['cnt']);
-		}
-		return $ret;
+	public function setProgress($task, $progress){
+	    $task->setProgress($progress);
+	    $task->save();
 	}
-
+	
+	public function findTask($id){
+	    return $this->getQuery()
+	    ->filterByPrimaryKey($id)
+	    ->_or()
+	    ->filterByName($id)
+	    ->findOne();
+	}
+	
 }

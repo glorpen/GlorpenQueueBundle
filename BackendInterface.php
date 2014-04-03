@@ -17,10 +17,10 @@ interface BackendInterface {
 	 * Adds a new task object to queue.
 	 * @param object $task
 	 */
-	public function add($task);
+	public function create($service, $method, array $args, $executeOn = 'now');
 	
 	/**
-	 * Marks tasks as started.
+	 * Marks tasks as started and sets current PID.
 	 * @return array of Task
 	 */
 	public function startPending($limit);
@@ -33,16 +33,16 @@ interface BackendInterface {
 	public function markDone($task, $status);
 	
 	/**
-	 * Returns newly created task.
-	 */
-	public function createTask();
+	 * Marks task as started.
+	 * @param object $task
+	 */	
+	public function markStarted($task);
 	
 	/**
-	 * Marks old locked tasks as pending.
-	 * @param \DateInterval $timeDiff
-	 * @return integer number of unlocked tasks
+	 * Returns locked tasks
+	 * @return array of Task locked tasks
 	 */
-	public function unlockCrashed(\DateInterval $timeDiff);
+	public function getLocked();
 	
 	/**
 	 * Marks failed tasks as pending.
@@ -56,9 +56,6 @@ interface BackendInterface {
 	 */
 	public function cleanup();
 	
-	/**
-	 * Returns queue stats.
-	 * @return array
-	 */
-	public function getStats();
+	public function setProgress($task, $progress);
+	
 }

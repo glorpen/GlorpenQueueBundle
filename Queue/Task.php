@@ -3,6 +3,7 @@
 namespace Glorpen\QueueBundle\Queue;
 
 use Symfony\Component\DependencyInjection\ContainerInterface;
+use Glorpen\QueueBundle\BackendInterface;
 
 /**
  * Base class for task objects.
@@ -10,16 +11,17 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
  */
 abstract class Task {
 	
-	private $executionTime;
+	private $executionTime = 0;
 	
 	abstract public function getService();
 	abstract public function getMethod();
 	abstract public function getArgs();
-	abstract public function getWhen();
-	abstract public function getPriority();
-	abstract public function getStartTime();
-	
+	abstract public function getPid();
 	abstract public function getStatus();
+	abstract public function getId();
+	
+	abstract public function getProgress();
+	abstract public function getStartTime();
 	
 	public function getExecutionTime(){
 		return $this->executionTime;
@@ -28,8 +30,10 @@ abstract class Task {
 	public function execute(ContainerInterface $container){
 		$start = microtime(true);
 		$exception = null;
+		$args = $this->getArgs();
+		$args = array_unshift($args, $this);
 		try {
-			call_user_func_array(array($container->get($this->getService()), $this->getMethod()), $this->getArgs());
+			call_user_func_array(array($container->get($this->getService()), $this->getMethod()), $args);
 		} catch (\Exception $e){
 			$exception = $e;
 		};
@@ -38,6 +42,11 @@ abstract class Task {
 	}
 	
 	public function getName(){
-		return $this->getService().':'.$this->getMethod();
+		return $this->getId().':'.$this->getService().':'.$this->getMethod();
 	}
+	
+	public function isAlive(){
+	    return posix_kill($this->getPid(), 0);
+	}
+
 }

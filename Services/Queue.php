@@ -23,6 +23,8 @@ class Queue {
 	protected $logger;
 	protected $dispatcher;
 	
+	private $task;
+	
 	public function __construct(ContainerInterface $container, BackendInterface $backend, EventDispatcherInterface $dispatcher, /*Psr\Log\LoggerInterface*/ $logger = null){
 		$this->backend = $backend;
 		$this->container = $container;
@@ -40,14 +42,9 @@ class Queue {
 		}
 	}
 	
-	public function addTask($taskObject){
+	public function create($service, $method, array $args, $executeOn = 'now', $name = null){
 		$this->log('debug', 'Adding new task');
-		$this->backend->add($taskObject);
-	}
-	
-	public function createTask(){
-		$this->log('debug', 'Creating empty task');
-		return $this->backend->createTask();
+		$this->backend->create($service, $method, $args, $executeOn, $name);
 	}
 	
 	public function run($limit = 5){
@@ -55,9 +52,11 @@ class Queue {
 		$tasks = $this->backend->startPending($limit);
 		
 		foreach($tasks as $task){
+		    $this->task = $task;
 			$this->dispatcher->dispatch('glorpen.queue.task_start', new TaskEvent($task));
 			try {
 				$this->log('info', sprintf('Executing task %s', $task->getName()));
+				$this->backend->markStarted($task);
 				$task->execute($this->container);
 				$this->log('info', sprintf('Marking task %s as ok', $task->getName()));
 				$this->backend->markDone($task, BackendInterface::STATUS_OK);
@@ -69,13 +68,23 @@ class Queue {
 			$this->log('info', sprintf('Task %s ended after %d seconds', $task->getName(), $task->getExecutionTime()));
 		}
 		
+		$this->task = null;
+		
 		return count($tasks);
 	}
 	
-	public function unlockCrashed($timeDiff){
-		$this->log('info', 'Unlocking crashed tasks');
-		$count = $this->backend->unlockCrashed($timeDiff);
-		$this->log('info', sprintf('Unlocked %d crashed tasks', $count));
+	public function checkRunning(){
+		$this->log('info', 'Checking crashed tasks');
+		$count = 0;
+		$locked = $this->backend->getLocked();
+		foreach($locked as $t){
+		    /* @var $t Task */
+		    if(!$t->isAlive()){
+		        $this->backend->markDone($t, BackendInterface::STATUS_FAILURE);
+		        $count++;
+		    }
+		}
+		$this->log('info', sprintf('Found %d crashed tasks', $count));
 		return $count;
 	}
 	
@@ -93,7 +102,15 @@ class Queue {
 		return $count;
 	}
 	
-	public function getStats(){
-		return $this->backend->getStats();
+	public function setCurrentTaskProgress($percentage){
+	    $this->backend->setProgress($this->task, $percentage);
+	}
+	
+	public function addCurrentTaskLog($msg){
+	    $this->backend->addLog($this->task, $msg);
+	}
+	
+	public function getTask($id){
+	    return $this->backend->findTask($id);
 	}
 }

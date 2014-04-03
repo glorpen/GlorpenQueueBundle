@@ -3,8 +3,6 @@ namespace Glorpen\QueueBundle\Backend;
 
 use Glorpen\QueueBundle\Queue\Task as BaseTask;
 
-use Glorpen\QueueBundle\Model\Propel\Task;
-
 /**
  * @author Arkadiusz Dzięgiel
  */
@@ -12,7 +10,7 @@ class PropelTask extends BaseTask {
 	
 	protected $task;
 	
-	public function __construct(Task $task){
+	public function __construct($task){
 		$this->task = $task;
 	}
 	
@@ -25,22 +23,29 @@ class PropelTask extends BaseTask {
 	public function getMethod() {
 		return $this->task->getMethod();
 	}
-	public function getPriority() {
-		return $this->task->getPriority();
+	public function getPid(){
+	    return $this->task->getPid();
 	}
-	public function getWhen() {
-		return $this->task->getExecuteOn();
+	public function getId(){
+	    $name = $this->task->getName();
+	    if($name) return $name;
+	    
+	    return $this->task->getId();
 	}
-	public function getStartTime() {
-		return $this->task->getStartedOn();
-	}
-
 	public function getStatus(){
 		return $this->task->getStatus();
 	}
 	
 	public function getModel(){
 		return $this->task;
+	}
+	
+	public function getStartTime(){
+	    return $this->getStartedAt();
+	}
+	
+	public function getProgress(){
+		return $this->getProgress();
 	}
 	
 }
