@@ -45,7 +45,7 @@ class Queue {
 	public function create($service, $method, array $args, $executeOn = 'now', $name = null){
 		if($name){
 		    $t = $this->backend->findTask($name);
-		    if($t->getStatus() == BackendInterface::STATUS_LOCKED){
+		    if($t && $t->getStatus() == BackendInterface::STATUS_LOCKED){
 		        throw new \RuntimeException("Task named $name is currently running");
 		    }
 		}
