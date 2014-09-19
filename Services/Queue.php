@@ -50,7 +50,7 @@ class Queue {
 		    }
 		}
 		$this->log('debug', 'Adding new task');
-		$this->backend->create($service, $method, $args, $executeOn, $name);
+		return $this->backend->create($service, $method, $args, $executeOn, $name);
 	}
 	
 	public function run($limit = 5){

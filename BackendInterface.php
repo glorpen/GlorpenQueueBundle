@@ -15,7 +15,7 @@ interface BackendInterface {
 	
 	/**
 	 * Adds a new task object to queue.
-	 * @param object $task
+	 * @return \Glorpen\QueueBundle\Queue\Task $task
 	 */
 	public function create($service, $method, array $args, $executeOn = 'now');
 	
