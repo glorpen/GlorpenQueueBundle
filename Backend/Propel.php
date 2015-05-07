@@ -113,7 +113,8 @@ class Propel implements BackendInterface {
 	public function findTask($id){
 	    $m = $this->getQuery()
 	    ->filterByPrimaryKey($id)
-	    ->orWhere("Task.Name = ?", $id)
+	    ->_or()
+	    ->filterByName($id)
 	    ->findOne();
 	    
 	    if($m) return new PropelTask($m);
