@@ -10,7 +10,7 @@
         <column name="status" type="ENUM" required="true" valueSet="pending,locked,ok,failed" />
         <column name="execute_on" type="TIMESTAMP" description="Execution date" required="true" />
         <column name="priority" type="INTEGER" required="true" defaultValue="0" />
-        <column name="queue_started_on" type="TIMESTAMP" description="Queue execution start date" required="false" />
+        <column name="started_on" type="TIMESTAMP" description="Task execution date" required="false" />
         <column name="pid" type="INTEGER" description="Queue pid" required="false" />
         <column name="progress" type="INTEGER" description="Progress" required="true" default="0" />
         

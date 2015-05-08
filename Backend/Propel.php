@@ -73,7 +73,6 @@ class Propel implements BackendInterface {
 		$ret = array();
 		foreach($tasks as $task){
 			$task->setStatus(self::STATUS_LOCKED);
-			$task->setStartedOn('now');
 			$task->setPid(posix_getpid());
 			$task->save($con);
 			$ret[] = new PropelTask($task);
