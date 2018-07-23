@@ -2,6 +2,9 @@
 GlorpenQueueBundle
 ------------------
 
+**Note: the repository is not maintained anymore.**
+
+
 Bundle for offloading work to server side. Can add service tasks/jobs to queue for later execution.
 
 Queue runs can safely overlap since tasks are locked upon acquiring by runner.
